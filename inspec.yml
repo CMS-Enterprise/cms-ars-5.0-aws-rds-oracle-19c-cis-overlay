@@ -1,0 +1,166 @@
+name: cms-ars-5.0-aws-rds-oracle-19c-cis-overlay
+title: cms-ars-5.0-aws-rds-oracle-19c-cis-overlay
+maintainer: MITRE SAF Team
+copyright: MITRE, 2022
+copyright_email: saf@groups.mitre.org
+license: Apache-2.0
+summary: InSpec testing for overlay compliance with the AWS RDS Oracle 19c
+inspec_version: ">= 4.0"
+version: 1.0.0
+
+depends:
+  - name: aws-rds-oracle-database-19c-cis-baseline
+    url: https://github.com/mitre/aws-rds-oracle-database-19c-cis-baseline/archive/main.tar.gz
+
+inputs:
+  - name: system_categorization
+    desc: "Selected system baseline based on the environment variable"
+    type: String
+    value: <%= ENV['BASELINE'].nil? ? 'Moderate (Default)' : ENV['BASELINE'] %>
+    
+  - name: user
+    sensitive: true
+    description: 'username Oracle DB'
+    type: String
+    required: true
+    value: 'SYSTEM'
+
+  - name: password
+    sensitive: true
+    description: 'password Oracle DB'
+    type: String
+    required: true
+
+  - name: host
+    sensitive: true
+    description: 'hostname Oracle DB'
+    type: String
+    required: true
+
+  - name: service
+    sensitive: true
+    description: 'service name Oracle DB'
+    type: String
+    required: true
+
+# oracle19c-3.1
+  - name: failed_login_attempts
+    description: 'Number of failed login attempts'
+    type: Numeric
+    <% if ENV['BASELINE'] == 'High' || ENV['BASELINE'] == 'High-HVA' %>
+    value: 3
+    <% elsif ENV['BASELINE'] == 'Moderate' || ENV['BASELINE'] == 'Moderate-HVA' || ENV['BASELINE'] == 'Low' || ENV['BASELINE'] == 'Low-HVA' || ENV['BASELINE'].nil? %> # Default
+    value: 5
+    <% end %>
+    profile: oracle-database-19c-cis-baseline
+
+# oracle19c-3.2
+  - name: password_lock_time
+    description: 'Number of days that user accounts are locked after set number of failed login attempts. Acceptable values are any number, fraction, decimal, or "UNLIMITED"'
+    type: String
+    <% if ENV['BASELINE'] == 'High' || ENV['BASELINE'] == 'High-HVA' %>
+    value: 'UNLIMITED' # decoded to '9999' | locked until released by admin
+    <% elsif ENV['BASELINE'] == 'Moderate' || ENV['BASELINE'] == 'Moderate-HVA' || ENV['BASELINE'].nil? %>
+    value: '1/24' # 1 hour
+    <% elsif ENV['BASELINE'] == 'Low' || ENV['BASELINE'] == 'Low-HVA' %>
+    value: '1/96' # 15 minutes
+    <% end %>
+    profile: oracle-database-19c-cis-baseline
+
+# oracle19c-3.3
+  - name: password_life_time
+    description: 'Number of days after which passwords are required to be changed'
+    type: Numeric
+    <% if ENV['BASELINE'] == 'High-HVA' || ENV['BASELINE'] == 'Moderate-HVA' || ENV['BASELINE'] == 'Low-HVA' %>
+    value: 60
+    <% end %>
+    profile: oracle-database-19c-cis-baseline
+
+# oracle19c-3.4
+  - name: password_reuse_max
+    description: 'Number of password changes required before the current password can be reused. Acceptable values are any integer or "UNLIMITED" to disallow reuse'
+    type: String
+    <% if ENV['BASELINE'] == 'High-HVA' || ENV['BASELINE'] == 'Moderate-HVA' || ENV['BASELINE'] == 'Low-HVA' %>
+    value: 'UNLIMITED' # decoded to '9999' | reuse disallowed
+    <% end %>
+    profile: oracle-database-19c-cis-baseline
+
+# oracle19c-3.6
+  - name: password_grace_time
+    description: 'Number of days that can pass after password expiration before account lockout'
+    type: Numeric
+    <% if ENV['BASELINE'] == 'High-HVA' || ENV['BASELINE'] == 'Moderate-HVA' || ENV['BASELINE'] == 'Low-HVA' %>
+    value: 0
+    <% end %>
+    profile: oracle-database-19c-cis-baseline
+
+# oracle19c-3.8
+  - name: sessions_per_user
+    description: 'Number of concurrent sessions allowed'
+    type: Numeric
+    <% if ENV['BASELINE'] == 'High' || ENV['BASELINE'] == 'High-HVA' %>
+    value: 1
+    <% end %>
+    profile: oracle-database-19c-cis-baseline
+  
+# oracle19c-3.9
+  - name: inactive_account_time
+    description: 'Number of days of inactivity after which account is locked'
+    type: Numeric
+    <% if ENV['BASELINE'] == 'High' || ENV['BASELINE'] == 'High-HVA' %>
+    value: 30
+    <% elsif ENV['BASELINE'] == 'Moderate' || ENV['BASELINE'] == 'Moderate-HVA' || ENV['BASELINE'].nil? %>
+    value: 60
+    <% end %>
+    profile: oracle-database-19c-cis-baseline
+
+  - name: overlay_controls
+    desc: 'List of inapplicable controls/requirements in ARS 5.0 based on the system categorization'
+    type: Array
+    <% if ENV['BASELINE'] == 'High-HVA' %>
+    value:
+      - "oracle19c-3.5" # AC-2
+    <% elsif ENV['BASELINE'] == 'High' %>
+    value: 
+      - "oracle19c-3.3" # AC-2
+      - "oracle19c-3.4" # AC-2
+      - "oracle19c-3.5" # AC-2
+      - "oracle19c-3.6" # AC-2
+    <% elsif ENV['BASELINE'] == 'Moderate-HVA' %>
+    value:
+      - "oracle19c-3.5" # AC-2
+    <% elsif ENV['BASELINE'] == 'Moderate' || ENV['BASELINE'].nil? %> # Default
+    value: 
+      - "oracle19c-3.3" # AC-2
+      - "oracle19c-3.4" # AC-2
+      - "oracle19c-3.5" # AC-2
+      - "oracle19c-3.6" # AC-2
+      - "oracle19c-6.1.12" # CM-6 (2)
+      - "oracle19c-6.1.3"  # CM-6 (2)
+    <% elsif ENV['BASELINE'] == 'Low-HVA' %>
+    value:
+      - "oracle19c-3.5" # AC-2
+    <% elsif ENV['BASELINE'] == 'Low' %>
+    value:
+      - "oracle19c-2.1.1" # AC-6 
+      - "oracle19c-2.2.11" # AC-6 
+      - "oracle19c-2.2.14" # AC-6 
+      - "oracle19c-3.3" # AC-2
+      - "oracle19c-3.4" # AC-2
+      - "oracle19c-3.5" # AC-2
+      - "oracle19c-3.6" # AC-2
+      - "oracle19c-3.8" # AC-6 
+      - "oracle19c-3.9" # AC-6 
+      - "oracle19c-4.2" # AC-6 
+      - "oracle19c-5.1.2.1" # AC-6 
+      - "oracle19c-4.1" # CM-2 (2)
+      - "oracle19c-6.1.12" # CM-6 (2)
+      - "oracle19c-6.1.3" # CM-6 (2)
+      - "oracle19c-2.2.15" # SC - 8
+      - "oracle19c-2.2.16" # SC - 8
+      - "oracle19c-5.2.1" # SC - 8
+      - "oracle19c-5.2.5" # SC - 8
+      - "oracle19c-5.2.6" # SC - 8
+      - "oracle19c-5.2.8" # SC - 8
+      - "oracle19c-4.5" # SC-28
+    <% end %>
