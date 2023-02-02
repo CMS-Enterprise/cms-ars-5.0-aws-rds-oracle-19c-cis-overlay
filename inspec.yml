@@ -10,7 +10,7 @@ version: 1.0.0
 
 depends:
   - name: aws-rds-oracle-database-19c-cis-baseline
-    url: https://github.com/mitre/aws-rds-oracle-database-19c-cis-baseline/archive/ars-5.tar.gz
+    url: https://github.com/mitre/aws-rds-oracle-database-19c-cis-baseline/archive/main.tar.gz
 
 inputs:
   - name: system_categorization
