@@ -59,7 +59,7 @@ The following inputs must be configured in an inputs ".yml" file for the profile
 user: 'admin'
 
 # description: Password Oracle DB
-password: 'xvIA7zonxGM=1'
+password: '<Your_Password>'
 
 # description: Hostname Oracle DB
 host: '<AWS_RDS_Endpoint>.rds.amazonaws.com'
@@ -68,7 +68,7 @@ host: '<AWS_RDS_Endpoint>.rds.amazonaws.com'
 service: 'ORCL'
 
 # description: Location of sqlplus tool (try `which sqlplus`)
-sqlplus_bin: '/opt/oracle/product/12.2.0.1/dbhome_1/bin/sqlplus'
+sqlplus_bin: '/opt/oracle/product/19.0.0.0/dbhome_1/bin/sqlplus'
 
 # Description: 'Flag to indicate whether the database is multi-tenant or single-tenant'
 multitenant: false
