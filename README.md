@@ -1,4 +1,6 @@
 # cms-ars-5.0-aws-rds-oracle-19c-cis-overlay
+**CMS’ ISPG (Information Security and Privacy Group) decided to discontinue funding the customization of MITRE’s Security Automation Framework (SAF) for CMS after September 2023. This repo is now in archive mode, but still accessible. For more information about SAF with current links, see https://security.cms.gov/learn/security-automation-framework-saf**
+
 
 InSpec profile overlay to validate the secure configuration of an AWS RDS instance of Oracle Database 19c against the Oracle Database 19c Benchmark version 1.0.0 [CIS](https://www.cisecurity.org/cis-benchmarks/)
 tailored for CMS ARS 5.0.
